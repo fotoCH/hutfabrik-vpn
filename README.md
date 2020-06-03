@@ -6,6 +6,9 @@ apt install bash-completion dnsutils python3-yaml net-tools htop git curl python
 wget https://git.io/vpnsetup -O vpnsetup.sh
 sh vpnsetup.sh
 
+pip3 install flask
+pip3 install flask_httpauth
+
 cd /opt/
 git clone git@github.com:fotoCH/hutfabrik-vpn.git
 cd vpn
@@ -20,6 +23,8 @@ systemctl start vpngui.service
 systemctl enable vpngui.service
 
 systemctl enable --now vpnupdate.timer
+
+systemctl disable fail2ban
 
 ```
 
