@@ -1,0 +1,10 @@
+[Unit]
+Description=VPN Gui Service
+
+[Service]
+Type=oneshot
+ExecStart=/opt/vpn/scripts/update-pubip.sh
+WorkingDirectory=/opt/vpn
+
+[Install]
+WantedBy=multi-user.target

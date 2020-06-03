@@ -1,0 +1,12 @@
+[Unit]
+Description=VPN Gui Service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /opt/vpn/backend/main.py /opt/vpn/conf/vpn-users.yaml
+WorkingDirectory=/opt/vpn
+Restart=always
+
+
+[Install]
+WantedBy=multi-user.target

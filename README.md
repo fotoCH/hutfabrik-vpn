@@ -1,23 +1,30 @@
-schritte:
+## Install
 
-[x] router checken
-[x] ddns einrichten
-[ ] vpn-vm aufsetzen
-  -> https://github.com/hwdsl2/setup-ipsec-vpn
-[x] portweiterleitung
-[x] vpn testen auf ipad
+```
+apt install bash-completion dnsutils python3-yaml net-tools htop git curl python3-yaml rsync python3-pip
 
-[ ] scripts um yaml in configs umzuwandeln
-[ ] daily ip check script
-[ ] backend um config abzufüllen
-[ ] frontend
+wget https://git.io/vpnsetup -O vpnsetup.sh
+sh vpnsetup.sh
+
+cd /opt/
+git clone git@github.com:fotoCH/hutfabrik-vpn.git
+cd vpn
+
+# adjust config
+vim config/vpn-users.yaml
+
+cp -ra systemd/* /etc/systemd/system/
+systemctl daemon-reload
+
+systemctl start vpngui.service
+systemctl enable vpngui.service
+
+systemctl enable --now vpnupdate.timer
+
+```
 
 
-
-
-
-
-
+## Notes
 pass:
 
 - /etc/ppp/chap-secrets
@@ -32,11 +39,3 @@ pass:
 - /etc/ipsec.secrets
   PSK
   %any  %any  : PSK "$VPN_IPSEC_PSK"
-
-
-
-install:
-
-apt install bash-completion dnsutils python3-yaml net-tools htop git curl
-wget https://git.io/vpnsetup -O vpnsetup.sh
-sh vpnsetup.sh

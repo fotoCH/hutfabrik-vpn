@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-
+import os
 import sys
 import yaml
 import subprocess
@@ -46,6 +46,17 @@ def main():
 
     print(file_chap_pw)
     print(file_ipsec_pw)
+
+    w_chap  = os.access("/etc/ppp/chap-secrets", os.W_OK)
+    w_ipsec = os.access("/etc/ipsec.d/passwd", os.W_OK)
+    if not w_chap or not w_ipsec:
+        print("cannot update files, not writable")
+        return
+
+    with open("/etc/ppp/chap-secrets", 'w') as f:
+        f.write(file_chap_pw)
+    with open("/etc/ipsec.d/passwd", 'w') as f:
+        f.write(file_ipsec_pw)
 
 
 

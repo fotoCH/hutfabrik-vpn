@@ -4,6 +4,7 @@ import os
 import sys
 import yaml
 import flask
+import subprocess
 import flask_httpauth
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -17,7 +18,10 @@ def reload_config():
     global users
     global conffile
     with open(conffile) as f:
-        conf = yaml.load(f, Loader=yaml.FullLoader)
+        if hasattr(yaml, 'FullLoader'):
+            conf = yaml.load(f, Loader=yaml.FullLoader)
+        else:
+            conf = yaml.load(f)
     users={}
     for user in conf['user']:
         users[user['name']] = generate_password_hash(user['pass'])
@@ -44,6 +48,11 @@ app.config['TEMPLATES_AUTO_RELOAD'] = True
 auth = flask_httpauth.HTTPBasicAuth()
 
 
+def main():
+    app.run(
+        host='0.0.0.0',
+        port=conf['config']['port']
+    )
 
 #
 # User & password validation
@@ -78,6 +87,35 @@ def get_current_user_role():
     return get_user_roles(username)
 
 
+def gen_openssl_pwd(pwd):
+    pwd = subprocess.check_output([
+        'openssl',
+        'passwd',
+        '-1',
+        pwd
+    ])
+    return pwd.decode().strip()
+
+
+def rewrite_vpnfiles():
+    w_chap  = os.access("/etc/ppp/chap-secrets", os.W_OK)
+    w_ipsec = os.access("/etc/ipsec.d/passwd", os.W_OK)
+    if not w_chap or not w_ipsec:
+        print("cannot update files, not writable")
+        return
+    file_chap_pw = ''
+    file_ipsec_pw = ''
+    for user in conf['user']:
+        file_chap_pw += f"\"{user['name']}\" l2tpd \"{user['pass']}\" *\n"
+        enc_pw = gen_openssl_pwd(user['pass'])
+        file_ipsec_pw += f"{user['name']}:{enc_pw}:xauth-psk\n"
+    with open("/etc/ppp/chap-secrets", 'w') as f:
+        f.write(file_chap_pw)
+    with open("/etc/ipsec.d/passwd", 'w') as f:
+        f.write(file_ipsec_pw)
+
+
+
 # verify user_pass
 @auth.verify_password
 def verify_password(username, password):
@@ -102,7 +140,7 @@ def update_conf_user(user, pw, role='user', desc=''):
     conf['user'] = new_users
     with open(conffile, 'w') as f:
         yaml.dump(conf, f, default_flow_style=False)
-
+    rewrite_vpnfiles()
 
 
 # all logged in users: change password of own account
@@ -117,6 +155,7 @@ def change_my_pass():
     role = get_user_roles(username)
     desc = get_user_desc(username)
     update_conf_user(username, newpass, role, desc)
+    rewrite_vpnfiles()
     return "200"
 
 
@@ -131,6 +170,7 @@ def change_any_pass():
     role = flask.request.form.get('role', get_user_roles(username))
     desc = flask.request.form.get('desc', get_user_desc(username))
     update_conf_user(username, newpass, role, desc)
+    rewrite_vpnfiles()
     return "200"
 
 
@@ -152,6 +192,7 @@ def create_new_user():
     })
     with open(conffile, 'w') as f:
         yaml.dump(conf, f, default_flow_style=False)
+    rewrite_vpnfiles()
     return "200"
 
 
@@ -171,6 +212,7 @@ def delete_user():
     conf['user'] = new_users
     with open(conffile, 'w') as f:
         yaml.dump(conf, f, default_flow_style=False)
+    rewrite_vpnfiles()
     return "200"
 
 
@@ -210,4 +252,4 @@ def admin():
 
 
 if __name__ == '__main__':
-    app.run()
+    main()

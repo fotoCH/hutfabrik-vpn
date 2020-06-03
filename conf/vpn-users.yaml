@@ -1,5 +1,7 @@
 config:
   psk: 123qwe
+  port: 5000
+  
 user:
 - desc: cyrillvw
   name: eni
