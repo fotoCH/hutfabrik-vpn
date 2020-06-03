@@ -1,0 +1,15 @@
+config:
+  psk: 123qwe
+user:
+- desc: cyrillvw
+  name: eni
+  pass: 123qwe
+  role: user
+- desc: jaja
+  name: admin
+  pass: supersecure
+  role: admin
+- desc: newlycreated
+  name: hans23
+  pass: 123qwe
+  role: user

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>hutfabrik VPN {% block title %}{% endblock %}</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="/style.css" rel="stylesheet">
+
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+      <a class="navbar-brand" href="#">🎩 hutfabrik VPN</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item {% if request.url_rule.endpoint == "index" %}active{% endif %}">
+            <a class="nav-link" href="/">Passwort ändern</a>
+          </li>
+          {% if user_role == "admin" %}
+          <li class="nav-item {% if request.url_rule.endpoint == "admin" %}active{% endif %}">
+            <a href="/admin" class="nav-link">Benutzer verwalten</a>
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+    </nav>
+
+    <main role="main" href="/admin"class="container">
+      <div id="messagearea"></div>
+      {% block content %}{% endblock %}
+    </main>
+
+    <div id="tpl-message">
+      <div class="alert alert-dismissible fade show" role="alert">
+        <span class="text"></span>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+    </div>
+
+    <script src="/jquery-3.2.1.min.js"></script>
+    <script src="/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/gui.js"></script>
+
+  </body>
+</html>
