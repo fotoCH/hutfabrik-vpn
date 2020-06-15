@@ -6,7 +6,6 @@ import yaml
 import flask
 import subprocess
 import flask_httpauth
-from werkzeug.security import generate_password_hash, check_password_hash
 
 
 
@@ -24,7 +23,7 @@ def reload_config():
             conf = yaml.load(f)
     users={}
     for user in conf['user']:
-        users[user['name']] = generate_password_hash(user['pass'])
+        users[user['name']] = user['pass']
 
 
 
@@ -44,7 +43,7 @@ app = flask.Flask(
     static_folder=os.path.join( rootpath, 'frontend' ),
     template_folder=os.path.join( rootpath, 'templates' )
 )
-app.config['TEMPLATES_AUTO_RELOAD'] = True
+app.config['TEMPLATES_AUTO_RELOAD'] = False
 auth = flask_httpauth.HTTPBasicAuth()
 
 
@@ -121,7 +120,7 @@ def rewrite_vpnfiles():
 def verify_password(username, password):
     reload_config()
     if username in users and \
-            check_password_hash(users.get(username), password):
+            users.get(username) == password:
         return username
 
 
